@@ -1,17 +1,17 @@
 <template>
     <div class="hello">
-      <ul class="list">
-        <li class="item">tag1</li>
-        <li class="item">tag2</li>
-        <li class="item">tag3</li>
-        <li class="item">tag4</li>
-        <li class="item">tag5</li>
-        <li class="item">tag6</li>
-        <li class="item">tag7</li>
-        <li class="item">tag8</li>
-        <li class="item">tag9</li>
-        <li class="item">tag10</li>
-      </ul>
+        <ul class="list">
+            <li class="item">tag1</li>
+            <li class="item">tag2</li>
+            <li class="item">tag3</li>
+            <li class="item">tag4</li>
+            <li class="item">tag5</li>
+            <li class="item">tag6</li>
+            <li class="item">tag7</li>
+            <li class="item">tag8</li>
+            <li class="item">tag9</li>
+            <li class="item">tag10</li>
+        </ul>
     </div>
 </template>
 
@@ -24,6 +24,4 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

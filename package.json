@@ -11,7 +11,7 @@
   "dependencies": {
     "core-js": "^2.6.5",
     "dayjs": "^1.9.8",
-    "socket.io": "^3.0.4",
+    "element-ui": "^2.14.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"

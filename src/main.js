@@ -4,11 +4,15 @@ import router from "./router";
 import store from "./store";
 import "./assets/style/index.scss";
 import dayjs from "dayjs";
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+
+Vue.use(ElementUI);
 
 // import SocketIO from 'socket.io-client';
 // import VueSocketIO from "vue-socket.io";
 
-Vue.prototype.$io = io("http://localhost:3001")
+Vue.prototype.$io = io("http://localhost:3001");
 
 Vue.prototype.dayjs = dayjs;
 Vue.config.productionTip = false;
