@@ -1,7 +1,6 @@
 var express = require("express");
 var app = express();
 var cors = require("cors");
-const { time } = require("console");
 app.use(cors);
 var http = require("http").Server(app);
 var io = require("socket.io")(http, { cors: true });
@@ -17,38 +16,56 @@ var port = process.env.PORT || 3001;
         msg:内容
         time：事件
     */
-let connects = [];
+let users = [];
+let loginUser = "";
 
 io.on("connection", function(socket) {
-    connects.push(socket);
-    console.log(`有人连接,当前连接人数${connects.length}`);
+    loginUser = socket;
 
     socket.on("chat message", function(data) {
         if (data.type == "login") {
-            socket.username = data.username;
-            io.emit("chat message", {
-                type: 1,
-                msg: `${socket.username}进入群聊`,
-                time: new Date().toLocaleTimeString(),
-            });
+            let user = users.find((item) => item.username == data.username);
+            if (user) {
+                socket.emit("loginErr", { msg: "登入失败" });
+            } else {
+                users.push(data);
+                socket.emit("loginSuccess", data);
+                socket.username = data.username;
+                console.log(`有人连接,当前连接人数${users.length}`);
+                console.log(users);
+                io.emit("chat message", {
+                    type: 1,
+                    msg: `${socket.username}进入群聊`,
+                    time: new Date().toLocaleTimeString(),
+                });
+            }
         } else if (data.type == "sendmsg") {
             io.emit("chat message", {
                 type: 2,
                 msg: data.msg,
                 time: new Date().toLocaleTimeString(),
+                username: socket.username,
             });
         }
     });
-
     socket.on("disconnect", (reason) => {
-        connects.splice(connects.indexOf(socket), 1);
-        console.log(`${reason} 连接断开了`);
+        if (socket.username) {
+            console.log(`${socket.username} 连接断开了`);
+            console.log(socket.username);
+            let idx = users.findIndex(
+                (item) => item.username == socket.username
+            );
+            users.splice(idx, 1);
 
-        io.emit("chat message", {
-            type: 3,
-            msg: `${socket.username}离开群聊`,
-            time: new Date().toLocaleTimeString(),
-        });
+            io.emit("chat message", {
+                type: 3,
+                msg: `${socket.username}离开群聊`,
+                time: new Date().toLocaleTimeString(),
+                // users: users,
+            });
+        }
+
+        console.log(users);
     });
     socket.on("disconnecting", (reason) => {
         //socket正在断开

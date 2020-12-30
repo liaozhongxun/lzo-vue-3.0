@@ -7,10 +7,12 @@
             >
         </div>
         <div class="room-main">
-            <div class="room-left"></div>
+            <div class="room-left">
+                {{ loginInfo.username }}
+            </div>
             <div class="room-right">
                 <div class="room-top">
-                    <ul class="userlist">
+                    <ul class="userlist" ref="scroll">
                         <li
                             class="item"
                             v-for="(item, index) in dataList"
@@ -19,6 +21,7 @@
                                 adduser: item.type == 1,
                                 msg: item.type == 2,
                                 removeuser: item.type == 3,
+                                loginuser: item.username == loginInfo.username,
                             }"
                         >
                             {{ item.msg }}
@@ -48,6 +51,7 @@ export default {
             username: "",
             sendmsgdata: "",
             dataList: [],
+            loginInfo: {},
         };
     },
     methods: {
@@ -58,7 +62,6 @@ export default {
                     type: "login",
                 };
                 this.$io.emit("chat message", data);
-                this.showmasker = false;
             } else {
                 this.$message({
                     message: "请输入名称!",
@@ -73,11 +76,26 @@ export default {
             };
             this.$io.emit("chat message", data);
             this.sendmsgdata = "";
+
+            //当前元素底部要显示在可区;
+            this.$refs.scroll.scrollIntoView(false);
         },
     },
     mounted() {
         this.$io.on("chat message", (data) => {
             this.dataList.push(data);
+            console.log(this.dataList);
+        });
+        this.$io.on("loginSuccess", (data) => {
+            console.log(data); //通过这个可以表示当前用户信息
+            this.loginInfo = data;
+            this.showmasker = false;
+        });
+        this.$io.on("loginErr", (data) => {
+            this.$message({
+                message: "登入失败",
+                type: "warning",
+            });
         });
     },
 };
@@ -127,13 +145,20 @@ export default {
                     width: 100%;
                 }
                 .adduser {
-                    color: coral;
+                    color: #777;
+                    font-size: 12px;
+                    text-align: center;
                 }
                 .msg {
                     color: darkgreen;
                 }
                 .removeuser {
-                    color: darkred;
+                    color: chocolate;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                .loginuser {
+                    text-align: right;
                 }
             }
         }
