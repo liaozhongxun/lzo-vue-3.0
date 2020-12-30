@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>socket.io</title>
+        <link rel="stylesheet" href="./static/style.css" />
+    </head>
+
+    <body>
+        <div id="app" v-cloak>
+            <video id="video" width="100px" height="100px"></video>
+            <ul id="messages"></ul>
+            <form action=""><input id="m" autocomplete="off" /><button id="submit">Send</button></form>
+        </div>
+    </body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.12/vue.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.9.7/dayjs.min.js"></script>
+    <script src="./static/socket.io.js"></script>
+    <script>
+        var app = new Vue({
+            el: "#app",
+            data: {
+                val: "fdsaf",
+            },
+            methods: {
+                formatData(val) {
+                    return dayjs(val.createtime).format("YYYY-MM-DD  HH:mm:ss");
+                },
+            },
+            mounted() {
+                var socket = io("http://localhost:3001");
+
+                $("form").submit(function () {
+                    socket.emit("chat message", $("#m").val());
+                    $("#m").val("");
+                    return false;
+                });
+                socket.on("chat message", function (msg) {
+                    $("#messages").append($("<li>").text(msg));
+                    window.scrollTo(0, document.body.scrollHeight);
+                });
+            },
+        });
+    </script>
+</html>
