@@ -335,11 +335,18 @@ export default {
         }
         .room-handle{
             height:30px;
-            background: #ff0;
+            background: #fff;
+            .handle-list{
+            width: 100%;
+            height: 100%;
+            display: flex;
+
+
+            }
         }
         .room-bottom {
             height: 100px;
-            border-top: 1px solid #ddd;
+            // border-top: 1px solid #ddd;
         }
     }
 }
