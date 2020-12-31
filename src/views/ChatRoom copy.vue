@@ -1,6 +1,6 @@
 <template>
     <div class="ChatRoom">
-        <div class="loginmasker" v-if="$store.state.showmasker">
+        <div class="loginmasker" v-if="showmasker">
             <div class="logincenter">
                 <el-input type="text" size="mini" v-model="username" placeholder="请输入用户名"></el-input>
                 <ul class="photos">
@@ -20,55 +20,47 @@
         <div class="room-main">
             <div class="room-left">
                 <div class="oneuser header">
-                    <img :src="$store.state.loginInfo.path" />
-                    <div class="name">{{ $store.state.loginInfo.username }}</div>
+                    <img :src="loginInfo.path" />
+                    <div class="name">{{ loginInfo.username }}</div>
                 </div>
                 <div class="alluser">
-                    <div class="oneuser" v-for="(item, index) in $store.state.webusers.users" :key="index">
+                    <div class="oneuser" v-for="(item, index) in webusers.users" :key="index">
                         <img :src="item.path" />
                         <div class="name">{{ item.username }}</div>
                     </div>
                 </div>
             </div>
             <div class="room-right">
-                <div class="room-header">总人数({{ $store.state.webusers.users.length }})</div>
+                <div class="room-header">总人数({{ webusers.users.length }})</div>
                 <div class="room-top">
                     <ul class="userlist" ref="scroll">
                         <li
                             class="item"
-                            v-for="(item, index) in $store.state.dataList"
+                            v-for="(item, index) in dataList"
                             :key="index"
                             :class="{
                                 adduser: item.type == 1,
                                 msg: item.type == 2,
                                 removeuser: item.type == 3,
-                                loginuser: item.username == $store.state.loginInfo.username,
+                                loginuser: item.username == loginInfo.username,
                             }"
                         >
                             <div v-if="item.type == 1 || item.type == 3">
                                 <div class="font">{{ item.msg }}</div>
                             </div>
-                            <div v-if="item.type == 2&&item.username != $store.state.loginInfo.username">
+                            <div v-if="item.type == 2&&item.username != loginInfo.username">
                                 <div class="usermsgs">
                                     <img class="photo" :src="item.path" />
                                     <div class="msginfo">{{ item.msg }}</div>
                                 </div>
                             </div>
-                            <div v-if="item.type == 2&&item.username == $store.state.loginInfo.username">
+                            <div v-if="item.type == 2&&item.username == loginInfo.username">
                                 <div class="usermsgs">
                                     <img class="photo" :src="item.path" />
                                     <div class="msginfo">{{ item.msg }}</div>
                                 </div>
                             </div>
                         </li>
-                    </ul>
-                </div>
-                <div class="room-handle">
-                    <ul class="handle-list">
-                        <li>1</li>
-                        <li>1</li>
-                        <li>1</li>
-                        <li>5</li>
                     </ul>
                 </div>
                 <div class="room-bottom">
@@ -84,10 +76,14 @@ export default {
     name: "ChatRoom",
     data() {
         return {
+            showmasker: false,
             username: "",
             userphoto: "",
             sendmsgdata: "",
- 
+            dataList: [],
+            loginInfo: {
+                username:""
+            },
             selecrIndex: -1,
             photos: [
                 { path: require("../assets/images/photo1.jpg"), text: "../assets/images/photo1.jpg" },
@@ -96,6 +92,7 @@ export default {
                 { path: require("../assets/images/photo4.jpg"), text: "../assets/images/photo4.jpg" },
                 { path: require("../assets/images/photo5.jpg"), text: "../assets/images/photo5.jpg" },
             ],
+            webusers: {users:[]},
         };
     },
     methods: {
@@ -104,8 +101,9 @@ export default {
                 let data = {
                     username: this.username,
                     userphoto: this.userphoto,
+                    type: "login",
                 };
-                this.$io.emit("login", data);
+                this.$io.emit("chat message", data);
             } else {
                 this.$message({
                     message: "请输入名称或选择头像!",
@@ -116,6 +114,7 @@ export default {
         sendmsg() {
             let data = {
                 msg: this.sendmsgdata,
+                type: "sendmsg",
             };
             this.$io.emit("chat message", data);
             this.sendmsgdata = "";
@@ -129,19 +128,20 @@ export default {
         },
     },
     mounted() {
+        console.log(this.loginInfo);
+        this.loginInfo.username?this.showmasker = false:this.showmasker = true;
         this.$io.on("chat message", (data) => {
             if(data.type == 2){
                 data.path = this.photos.filter((item) => item.text == data.userphoto)[0].path;
             }
-            console.log(data);
-            this.$store.state.dataList.push(data);
-            console.log(this.$store.state.dataList)
+            this.dataList.push(data);
+            console.log(this.dataList);
         });
         this.$io.on("loginSuccess", (data) => {
             console.log(data); //通过这个可以表示当前用户信息
-            this.$store.state.loginInfo = data;
-            this.$store.state.loginInfo.path = this.photos.filter((item) => item.text == data.userphoto)[0].path;
-            this.$store.state.showmasker = false;
+            this.loginInfo = data;
+            this.loginInfo.path = this.photos.filter((item) => item.text == data.userphoto)[0].path;
+            this.showmasker = false;
         });
         this.$io.on("loginErr", (data) => {
             // this.$message({
@@ -154,7 +154,7 @@ export default {
             data.users.map((itemUs) => {
                 itemUs.path = this.photos.filter((item) => item.text == itemUs.userphoto)[0].path;
             });
-            this.$store.state.webusers = data;
+            this.webusers = data;
         });
     },
 };
@@ -284,11 +284,10 @@ export default {
         .room-top {
             flex: 1;
             overflow: auto;
-            padding:0 10px;
+            padding: 10px;
             background: #f5f5f5;
             .userlist {
                 width: 100%;
-                padding:10px 0;
                 .item {
                     width: 100%;
                     margin-top: 10px;
@@ -332,10 +331,6 @@ export default {
                     }
                 }
             }
-        }
-        .room-handle{
-            height:30px;
-            background: #ff0;
         }
         .room-bottom {
             height: 100px;
