@@ -7,12 +7,16 @@ import dayjs from "dayjs";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 
+import vConsole from 'vconsole'
+Vue.prototype.$vConsole = new vConsole();
+
 Vue.use(ElementUI);
 
 // import SocketIO from 'socket.io-client';
 // import VueSocketIO from "vue-socket.io";
 
 Vue.prototype.$io = io("http://localhost:3001");
+Vue.prototype.$io_video = io("https://localhost:9998");
 
 Vue.prototype.dayjs = dayjs;
 Vue.config.productionTip = false;
